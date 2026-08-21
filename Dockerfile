@@ -19,4 +19,4 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 EXPOSE 8000
 
-CMD ["/bin/bash", "-c", "sed -i \"s/\\$PORT/${PORT:-8000}/g\" /etc/nginx/sites-enabled/default && supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

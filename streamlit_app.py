@@ -5,7 +5,7 @@ import time
 # ----------------------------------------------------------------------
 # CONFIG — change this once your backend is deployed
 # ----------------------------------------------------------------------
-API_BASE_URL = "http://127.0.0.1:8000"  # replace with your Render/Railway URL
+API_BASE_URL = "http://127.0.0.1:8001"  # replace with your Render/Railway URL
 
 st.set_page_config(
     page_title="DOC/INTEL",
