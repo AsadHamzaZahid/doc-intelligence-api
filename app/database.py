@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from app.config import settings
 from fastapi import FastAPI
+from sqlalchemy import text
 
 app = FastAPI(title="Doc Intelligence API")
 
