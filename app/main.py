@@ -1,9 +1,19 @@
+from sqlalchemy import text
+import asyncio
+import logging
 from app.database import engine
 from fastapi import FastAPI
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.routers import health, auth, documents
+
+import asyncio
+import logging
+from sqlalchemy import text
+from app.database import engine
+
+logger = logging.getLogger(__name__)
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -18,11 +28,17 @@ app.include_router(documents.router)
 ...
 
 
+logger = logging.getLogger(__name__)
+
+
 @app.on_event("startup")
 async def verify_db_connection():
     try:
-        async with engine.connect() as conn:
-            await conn.execute(text("SELECT 1"))
-        logging.info("DB CONNECTION OK")
-    except Exception as e:
-        logging.error(f"DB CONNECTION FAILED: {type(e).__name__}: {e}")
+        # Python 3.11+; use asyncio.wait_for on older
+        async with asyncio.timeout(5):
+            async with engine.connect() as conn:
+                await conn.execute(text("SELECT 1"))
+        logger.info("DB CONNECTION OK")
+    except BaseException as e:
+        logger.error(
+            f"DB CONNECTION FAILED: {type(e).__name__}: {e}", exc_info=True)
