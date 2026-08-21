@@ -8,11 +8,6 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.routers import health, auth, documents
 
-import asyncio
-import logging
-from sqlalchemy import text
-from app.database import engine
-
 logger = logging.getLogger(__name__)
 
 limiter = Limiter(key_func=get_remote_address)
@@ -24,11 +19,6 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(documents.router)
-
-...
-
-
-logger = logging.getLogger(__name__)
 
 
 @app.on_event("startup")
