@@ -5,7 +5,8 @@ import time
 # ----------------------------------------------------------------------
 # CONFIG — change this once your backend is deployed
 # ----------------------------------------------------------------------
-API_BASE_URL = "http://127.0.0.1:8000"  # replace with your Render/Railway URL
+# FastAPI's own port — bypasses nginx entirely since streamlit and fastapi share this container
+API_BASE_URL = "http://127.0.0.1:8001"
 
 st.set_page_config(
     page_title="DOC/INTEL",
@@ -204,7 +205,11 @@ with st.sidebar:
                         st.session_state.email = login_email
                         st.rerun()
                     else:
-                        st.error("LOGIN FAILED — CHECK CREDENTIALS")
+                        try:
+                            detail = resp.json().get("detail", "LOGIN FAILED — CHECK CREDENTIALS")
+                        except requests.exceptions.JSONDecodeError:
+                            detail = f"LOGIN FAILED (status {resp.status_code}, empty response)"
+                        st.error(detail)
                 except requests.exceptions.ConnectionError:
                     st.error("CAN'T REACH API — CHECK API_BASE_URL")
 
@@ -222,7 +227,11 @@ with st.sidebar:
                     if resp.status_code == 201:
                         st.success("ACCOUNT CREATED — NOW LOG IN")
                     else:
-                        st.error(resp.json().get("detail", "SIGNUP FAILED"))
+                        try:
+                            detail = resp.json().get("detail", "SIGNUP FAILED")
+                        except requests.exceptions.JSONDecodeError:
+                            detail = f"SIGNUP FAILED (status {resp.status_code}, empty response)"
+                        st.error(detail)
                 except requests.exceptions.ConnectionError:
                     st.error("CAN'T REACH API — CHECK API_BASE_URL")
 
