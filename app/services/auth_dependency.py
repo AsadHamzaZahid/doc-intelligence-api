@@ -7,7 +7,7 @@ from app.database import get_db
 from app.models.user import User
 from app.config import settings
 
-O2_bearer = OAuth2PasswordBearer(tokenUrl="auth/login")
+O2_bearer = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 async def get_current_user(token: str = Depends(O2_bearer), db: AsyncSession = Depends(get_db)):
