@@ -89,23 +89,11 @@ async def upload(
     }
 
 
-@router.get("/{document_id}")
-async def get_document_status(
-    document_id: uuid.UUID,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """Quick way to check if a document has finished processing yet."""
-    result = await db.execute(
-        select(Document).where(Document.id == document_id,
-                               Document.user_id == current_user.id)
-    )
-    document = result.scalar_one_or_none()
-    if not document:
-        raise HTTPException(status_code=404, detail="Document not found")
-    return {"document_id": document.id, "file_name": document.file_name, "status": document.status}
-
-
+# NOTE: /ask MUST be defined before /{document_id}.
+# FastAPI matches routes in registration order, and "/{document_id}" would
+# otherwise greedily match the literal path "/ask" (treating "ask" as if
+# it were a document_id), causing a UUID-parsing error before this route
+# is ever reached.
 @router.get("/ask")
 async def ask_questions(
     query: str,
@@ -130,3 +118,20 @@ async def ask_questions(
     context_chunks = [chunk.content for chunk, _ in rows]
 
     return StreamingResponse(stream_answer(query, context_chunks), media_type="text/plain")
+
+
+@router.get("/{document_id}")
+async def get_document_status(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Quick way to check if a document has finished processing yet."""
+    result = await db.execute(
+        select(Document).where(Document.id == document_id,
+                               Document.user_id == current_user.id)
+    )
+    document = result.scalar_one_or_none()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return {"document_id": document.id, "file_name": document.file_name, "status": document.status}

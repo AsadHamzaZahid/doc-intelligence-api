@@ -292,28 +292,24 @@ else:
         "Your question", placeholder="What does this document say about...", label_visibility="collapsed")
 
     if st.button("GENERATE ANSWER", use_container_width=True) and query:
-
-        if "last_doc_id" not in st.session_state:
-            st.error("UPLOAD AND PROCESS A DOCUMENT FIRST")
-        else:
-            answer_placeholder = st.empty()
-            full_answer = ""
-            try:
-                with requests.get(
-                    f"{API_BASE_URL}/documents/{st.session_state.last_doc_id}/ask",
-                    headers=headers,
-                    params={"query": query},
-                    stream=True,
-                ) as resp:
-                    for chunk in resp.iter_content(chunk_size=None, decode_unicode=True):
-                        if chunk:
-                            full_answer += chunk
-                            answer_placeholder.markdown(
-                                f'<div class="answer-box">{full_answer}</div>',
-                                unsafe_allow_html=True,
-                            )
-            except requests.exceptions.ConnectionError:
-                st.error("CAN'T REACH API — CHECK API_BASE_URL")
+        answer_placeholder = st.empty()
+        full_answer = ""
+        try:
+            with requests.get(
+                f"{API_BASE_URL}/documents/ask",
+                headers=headers,
+                params={"query": query},
+                stream=True,
+            ) as resp:
+                for chunk in resp.iter_content(chunk_size=None, decode_unicode=True):
+                    if chunk:
+                        full_answer += chunk
+                        answer_placeholder.markdown(
+                            f'<div class="answer-box">{full_answer}</div>',
+                            unsafe_allow_html=True,
+                        )
+        except requests.exceptions.ConnectionError:
+            st.error("CAN'T REACH API — CHECK API_BASE_URL")
 
 st.markdown('<div class="accent-bar"></div>', unsafe_allow_html=True)
 st.caption("DOC/INTEL — BUILT WITH FASTAPI + POSTGRES + PGVECTOR + MISTRAL")
