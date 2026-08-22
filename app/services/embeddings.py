@@ -5,6 +5,7 @@ client = Mistral(api_key=settings.mistral_api_key)
 
 
 def get_embedding(text: str) -> list[float]:
+
     response = client.embeddings.create(
         model="mistral-embed",
         inputs=[text],

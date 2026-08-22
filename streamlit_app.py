@@ -133,6 +133,29 @@ section[data-testid="stSidebar"] h3 {
     font-size: 1.05em;
 }
 
+/* Q&A history item */
+.qa-item {
+    background-color: #141414;
+    border-left: 6px solid #e8291c;
+    padding: 1.2em 1.5em;
+    margin-top: 1.2em;
+}
+
+.qa-question {
+    color: #e8b923;
+    font-weight: bold;
+    font-size: 0.95em;
+    margin-bottom: 0.6em;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.qa-answer {
+    color: #f5f5f5;
+    line-height: 1.6;
+    font-size: 1.0em;
+}
+
 /* Diagonal accent bar */
 .accent-bar {
     height: 10px;
@@ -169,6 +192,8 @@ if "token" not in st.session_state:
     st.session_state.token = None
 if "email" not in st.session_state:
     st.session_state.email = None
+if "qa_history" not in st.session_state:
+    st.session_state.qa_history = []
 
 # ----------------------------------------------------------------------
 # SIDEBAR — AUTH
@@ -185,6 +210,7 @@ with st.sidebar:
         if st.button("LOG OUT", use_container_width=True):
             st.session_state.token = None
             st.session_state.email = None
+            st.session_state.qa_history = []
             st.rerun()
     else:
         tab_login, tab_signup = st.tabs(["LOGIN", "SIGN UP"])
@@ -308,8 +334,29 @@ else:
                             f'<div class="answer-box">{full_answer}</div>',
                             unsafe_allow_html=True,
                         )
+            # Streaming finished — save this Q&A permanently to history
+            # and clear the temporary "live" box so it isn't shown twice.
+            st.session_state.qa_history.append(
+                {"question": query, "answer": full_answer})
+            answer_placeholder.empty()
         except requests.exceptions.ConnectionError:
             st.error("CAN'T REACH API — CHECK API_BASE_URL")
+
+    # ------------------------------------------------------------------
+    # Q&A HISTORY — every past question and answer stays visible here,
+    # most recent first, instead of disappearing when a new one is asked.
+    # ------------------------------------------------------------------
+    if st.session_state.qa_history:
+        st.markdown('<div class="accent-bar"></div>', unsafe_allow_html=True)
+        st.markdown("## HISTORY")
+        for qa in reversed(st.session_state.qa_history):
+            st.markdown(
+                f'<div class="qa-item">'
+                f'<div class="qa-question">Q: {qa["question"]}</div>'
+                f'<div class="qa-answer">{qa["answer"]}</div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
 
 st.markdown('<div class="accent-bar"></div>', unsafe_allow_html=True)
 st.caption("DOC/INTEL — BUILT WITH FASTAPI + POSTGRES + PGVECTOR + MISTRAL")
