@@ -87,10 +87,6 @@ This isn't pretending to be finished. A few things that would matter more at rea
 
 Mostly to stop reading about production backend patterns and actually hit the bugs myself. Auth was harder than it looks. Async SQLAlchemy sessions will humble you. 
 
-## A Note on the Live Demo Link
+## Note on Live Demo
 
-This project is deployed on Back4App's free container tier, which has a limitation worth knowing about: **the public URL becomes inactive after about 60 minutes** (a constraint of the free tier itself, not a bug in the app). If you're trying the live demo and it's not loading, this is almost certainly why — the container has spun down and needs to be manually restarted from the Back4App dashboard, or a fresh deployment needs to be triggered.
-
-For a persistent, always-on deployment, this would need to move to a paid tier (Back4App or otherwise) or a different host built for long-running free services (e.g., Railway, Fly.io).
-
-**tl;dr:** if the live link is down, that's expected on the free tier — the code itself is working fine locally and via the API docs at `/docs`.pgvector is genuinely satisfying once it works. Every error in this project got fixed the slow way, one traceback at a time, which is honestly the only way any of it actually sticks.
+Hosted on Back4App's free tier, so the public link goes to sleep after about 60 minutes of inactivity. If it's not loading, that's why, not a bug. Run it locally or check the API docs at /docs to see it working.
