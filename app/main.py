@@ -25,7 +25,7 @@ app.include_router(documents.router)
 async def verify_db_connection():
     try:
         # Python 3.11+; use asyncio.wait_for on older
-        async with asyncio.timeout(5):
+        async with asyncio.timeout(15):
             async with engine.connect() as conn:
                 await conn.execute(text("SELECT 1"))
         logger.info("DB CONNECTION OK")

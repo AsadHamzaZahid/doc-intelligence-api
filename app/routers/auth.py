@@ -16,6 +16,7 @@ router = APIRouter(prefix="/auth", tags=['auth'])
 
 @router.post("/signup", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 async def signup(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
+
     results = await db.execute(select(User).where(User.email == user_in.email))
     user_existing = results.scalar_one_or_none()
     if user_existing:

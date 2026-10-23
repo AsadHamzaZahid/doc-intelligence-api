@@ -135,3 +135,24 @@ async def get_document_status(
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     return {"document_id": document.id, "file_name": document.file_name, "status": document.status}
+
+
+@router.delete("/{document_id}")
+async def delete_document(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Quick way to check if a document has finished processing yet."""
+    result = await db.execute(
+        select(Document).where(Document.id == document_id,
+                               Document.user_id == current_user.id)
+    )
+    document = result.scalar_one_or_none()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    await db.delete(document)
+    await db.commit()
+
+    return {"document_id": document.id, "file_name": document.file_name, "status": "DELETED"}
