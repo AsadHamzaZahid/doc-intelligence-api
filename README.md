@@ -4,6 +4,10 @@ Upload a PDF, ask it questions, get answers pulled straight from the document. T
 
 This is a RAG (Retrieval-Augmented Generation) system built from scratch to actually understand what happens under the hood, not just import a library and call it a day.
 
+## Live demo
+
+**[Open the live app](https://doc-intelligence-api-vuk4drmriaclpgj8zdhtiv.streamlit.app/)**
+
 ## What it does
 
 1. You sign up and log in (JWT auth, passwords hashed with bcrypt, nothing stored in plain text)
