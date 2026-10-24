@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Doc Intelligence API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Special+Elite&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#e3f6ee;--mint:#9fe3c8;--mint2:#6fcdaa;--deep:#2e8f73;--ink:#1d3a31;--paper:#fffdf5;--wood:#b98a5c;--wood2:#8d6440;--script:'Great Vibes',cursive;--type:'Special Elite',monospace}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:radial-gradient(circle at 15% 0,#f6fffb,transparent 55%),var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif;overflow-x:hidden}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--deep);outline-offset:2px}
+.scene{display:none;min-height:100vh}.scene.on{display:block}
+
+/* sign + robot */
+.stage{display:grid;place-items:center;min-height:100vh;padding:28px 20px}
+.sign{position:relative;background:linear-gradient(var(--wood),#a77a4d);border:6px solid var(--wood2);border-radius:14px;padding:22px 26px 26px;text-align:center;box-shadow:0 10px 0 #0002;transform:rotate(-1.5deg);margin-bottom:46px}
+.sign:before,.sign:after{content:"";position:absolute;bottom:-44px;width:14px;height:44px;background:var(--wood2)}
+.sign:before{left:30px}.sign:after{right:30px}
+.sign p{margin:0;font:400 clamp(40px,6vw,64px)/1 var(--script);color:#fff8e6;text-shadow:2px 2px 0 var(--wood2)}
+.sign small{display:block;margin-top:8px;font:400 15px var(--type);color:#fff3d6;letter-spacing:.04em}
+.bot{width:100%;overflow:visible}
+
+/* typewriter */
+.tw{position:relative;width:min(470px,100%);margin:0 auto}
+.sheet{background:var(--paper);margin:0 30px;padding:20px 24px 44px;border-radius:6px 6px 0 0;font-family:var(--type);box-shadow:0 -3px 10px #0001;background-image:repeating-linear-gradient(transparent 0 31px,#cfe9df 31px 32px)}
+.sheet h2{margin:0 0 6px;font:400 20px/32px var(--type)}
+.line{display:flex;gap:8px;align-items:baseline;line-height:32px}
+.line label{width:84px;flex:none}
+.line input{flex:1;min-width:0;border:0;border-bottom:2px dotted var(--ink);background:transparent;font:400 17px var(--type);color:var(--ink);padding:0 2px;height:32px}
+.msg{min-height:32px;font:400 16px/32px var(--type)}
+.msg.ok{color:#1f7a5c}.msg.bad{color:#b0392b}
+.msg:after{content:"";display:inline-block;width:8px;height:16px;background:var(--ink);margin-left:3px;vertical-align:-2px;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.body{position:relative;background:repeating-linear-gradient(90deg,#0000 0 3px,#0001 3px 4px,#0000 4px 11px,#ffffff12 11px 12px),repeating-linear-gradient(178deg,#0000 0 9px,#0000001a 9px 10px),linear-gradient(#b27a43,#8f5c2e);border:4px solid #5e3a1c;border-radius:20px 20px 30px 30px;padding:28px 22px 20px;box-shadow:inset 0 3px 0 #d9a76b80,0 14px 0 #4a2c14,0 28px 30px #0004}
+.body:before{content:"";position:absolute;left:12px;right:12px;top:-14px;height:20px;border-radius:10px;background:linear-gradient(#4a3a2c,#1e1610);box-shadow:-10px 0 0 -1px #d0a64a,10px 0 0 -1px #d0a64a}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;justify-content:center}
+.key{border:3px solid #5e3a1c;background:radial-gradient(circle at 35% 30%,#fffaf0,#f0e2c0);color:#3a2412;border-radius:999px;padding:6px 18px;font:400 16px var(--type);box-shadow:0 4px 0 #5e3a1c,inset 0 0 0 2px #d0a64a;transition:transform .08s,box-shadow .08s}
+.key:active{transform:translateY(3px);box-shadow:0 1px 0 #5e3a1c,inset 0 0 0 2px #d0a64a}
+.key.sel{background:#4a2c14;color:#f6ecd2}
+.key.go{background:radial-gradient(circle at 35% 30%,#ffe9a8,#e2b94f)}
+.keys{height:50px;background:radial-gradient(circle,#f6ecd2 0 8px,#d0a64a 9px 11px,#3a2412 12px 13px,transparent 14px) 0 0/34px 34px}
+
+/* upload */
+.upl{max-width:560px;margin:0 auto;padding:30px 20px;text-align:center}
+.upl h1{font:400 clamp(38px,6vw,54px)/1.1 var(--script);margin:0 0 20px}
+.feed{position:relative;height:210px;margin:0 30px;overflow:hidden}
+.paper{position:absolute;left:0;right:0;bottom:0;height:200px;background:var(--paper);border-radius:6px 6px 0 0;padding:18px;font-family:var(--type);background-image:repeating-linear-gradient(transparent 0 25px,#cfe9df 25px 26px);transition:transform .5s ease-out;box-shadow:0 -3px 10px #0001}
+.paper b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.count{position:absolute;top:6px;left:0;right:0;text-align:center;font:400 22px var(--type);z-index:2;text-shadow:0 0 6px var(--paper),0 0 6px var(--paper)}
+.upl .msg{margin-top:34px}
+.drop{outline:3px dashed var(--deep);outline-offset:8px}
+
+/* curtains */
+.curtains{position:fixed;inset:0;z-index:50;pointer-events:none}
+.curtains i{position:absolute;top:0;bottom:0;width:51%;background:repeating-linear-gradient(90deg,#2e8f73 0 24px,#257a62 24px 48px);transition:transform .8s cubic-bezier(.7,0,.3,1)}
+.curtains i:first-child{left:0;transform:translateX(-102%);border-right:7px solid #e8c77a}
+.curtains i:last-child{right:0;transform:translateX(102%);border-left:7px solid #e8c77a}
+.curtains.shut{pointer-events:all}.curtains.shut i{transform:none}
+
+/* chat */
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:10px 20px;background:#e3f6eeee;backdrop-filter:blur(6px);border-bottom:1px solid #2e8f7330}
+.top .brand{font:400 30px/1 var(--script)}
+.top .doc{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;opacity:.7}
+.ghost{border:1px solid #2e8f7380;background:#fff8;color:var(--ink);border-radius:999px;padding:5px 14px;font-size:14px}
+#log{max-width:780px;margin:0 auto;padding:20px 20px 150px;display:flex;flex-direction:column;gap:22px}
+.u{align-self:flex-end;max-width:85%;background:var(--mint);padding:10px 16px;border-radius:20px 20px 4px 20px;white-space:pre-wrap}
+.a{font-size:17px;line-height:1.8;white-space:pre-wrap;max-width:700px}
+.a.err{color:#b0392b}
+.hero{display:flex;justify-content:center;padding-top:10vh}
+.hero.gone{display:none}
+.wrap{display:grid;grid-template-columns:310px 1fr}.side{position:sticky;top:56px;align-self:start;padding:24px 14px;display:flex;flex-direction:column;align-items:center}.side .sign{padding:14px 16px 18px}.side .sign p{font-size:clamp(32px,3vw,40px)}.side .sign small{font-size:13px}.side .bot{max-width:290px}
+.smoke circle{fill:#fff;stroke:#c9e7dc;opacity:0;transform-box:fill-box;transform-origin:center}
+.play .smoke circle{animation:puff 2.6s ease-out forwards}
+@keyframes puff{0%{opacity:0;transform:translate(0,0) scale(.3)}25%{opacity:.95}100%{opacity:0;transform:translate(120px,-40px) scale(2.4)}}
+.banner{max-width:370px;padding:30px 42px;background:var(--paper);font:400 36px/1.1 var(--script);text-align:center;clip-path:polygon(0 0,100% 0,95% 50%,100% 100%,0 100%,5% 50%);opacity:0;transform-origin:left center}
+.play .banner{animation:ribbon 1s 1.5s cubic-bezier(.2,.9,.3,1.2) forwards}
+@keyframes ribbon{from{opacity:0;transform:translateX(-80px) scale(.2,.5)}to{opacity:1;transform:none}}
+#ask{position:fixed;left:310px;right:0;bottom:0;padding:14px 20px 20px;background:linear-gradient(transparent,var(--bg) 40%)}
+.box{max-width:780px;margin:0 auto;display:flex;align-items:flex-end;gap:8px;background:#fff;border:1px solid #2e8f7340;border-radius:26px;padding:8px 8px 8px 20px;box-shadow:0 6px 24px #1d3a3122}
+.box textarea{flex:1;border:0;outline:0;resize:none;font:17px/1.6 Inter,system-ui,sans-serif;color:var(--ink);max-height:180px;padding:6px 0;background:transparent}
+.send{width:40px;height:40px;border:0;border-radius:50%;background:var(--deep);color:#fff;font-size:20px}
+.send:disabled{opacity:.4}
+
+.mute{position:fixed;left:12px;bottom:12px;z-index:60;width:40px;height:40px;border-radius:50%;border:3px solid #5e3a1c;background:#f6ecd2;font-size:18px;box-shadow:0 3px 0 #5e3a1c}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}.side{position:static;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:8px 20px;padding:10px}.side .bot{max-width:150px}#ask{left:0}.banner{font-size:30px}.mute{bottom:96px;left:8px;width:34px;height:34px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="bot" viewBox="0 0 300 220">
+ <path d="M74 118c-32 8-44 42-36 72 10-28 24-36 42-46z" fill="#5a3a24"/>
+ <rect x="84" y="150" width="14" height="60" rx="6" fill="#7a4d32"/><rect x="106" y="152" width="14" height="58" rx="6" fill="#8a5a3b"/>
+ <ellipse cx="140" cy="135" rx="72" ry="36" fill="#9a6644"/>
+ <rect x="164" y="152" width="14" height="58" rx="6" fill="#8a5a3b"/><rect x="188" y="150" width="14" height="60" rx="6" fill="#7a4d32"/>
+ <polygon points="180,115 205,70 232,66 240,112 200,128" fill="#9a6644"/>
+ <path d="M226 64l36 10 18 34-12 8-22-16-14 8z" fill="#a8734f"/><polygon points="226,64 232,46 241,66" fill="#9a6644"/>
+ <circle cx="247" cy="82" r="3.5" fill="#2b1a10"/><path d="M204 72q-10 22-6 44" stroke="#4a2f1e" stroke-width="8" fill="none" stroke-linecap="round"/>
+ <rect x="110" y="98" width="58" height="14" rx="7" fill="#c45c4a"/>
+ <rect x="132" y="104" width="12" height="36" rx="5" fill="#b9c7c4" stroke="#6b7f7a" stroke-width="2"/>
+ <rect x="124" y="56" width="36" height="46" rx="8" fill="#b9c7c4" stroke="#6b7f7a" stroke-width="2"/><circle cx="142" cy="78" r="5" fill="#ffd966"/>
+ <rect x="126" y="26" width="32" height="28" rx="7" fill="#cfdad7" stroke="#6b7f7a" stroke-width="2"/>
+ <circle cx="135" cy="40" r="4.5" fill="#2e8f73"/><circle cx="149" cy="40" r="4.5" fill="#2e8f73"/>
+ <path d="M142 26v-9" stroke="#6b7f7a" stroke-width="2"/><circle cx="142" cy="14" r="3" fill="#d9534f"/>
+ <ellipse cx="142" cy="26" rx="36" ry="7" fill="#8d6440"/><rect x="126" y="6" width="32" height="20" rx="6" fill="#a77a4f"/><rect x="126" y="17" width="32" height="5" fill="#5a3a24"/>
+ <rect x="156" y="64" width="46" height="10" rx="5" fill="#b9c7c4" stroke="#6b7f7a" stroke-width="2"/><circle cx="203" cy="69" r="6" fill="#cfdad7" stroke="#6b7f7a" stroke-width="2"/>
+ <path d="M200 60h30v8h-19l-4 14h-9z" fill="#3c3c3c"/>
+</symbol></defs></svg>
+
+<div class="curtains" id="cur"><i></i><i></i></div>
+<button class="mute" id="mute" aria-label="Toggle typewriter sound">🔊</button>
+
+<!-- 1. sign up / log in -->
+<section class="scene on" id="auth">
+ <div class="stage">
+  <form class="tw" id="form" novalidate>
+   <div class="sheet">
+    <h2 id="heading">Dear new friend,</h2>
+    <div class="line"><label for="em">Email:</label><input id="em" type="email" autocomplete="email"></div>
+    <div class="line"><label for="pw">Password:</label><input id="pw" type="password" autocomplete="current-password"></div>
+    <div class="msg" id="msg" aria-live="polite"></div>
+   </div>
+   <div class="body">
+    <div class="row">
+     <button type="button" class="key mode sel" data-m="up">Sign up</button>
+     <button type="button" class="key mode" data-m="in">Log in</button>
+     <button type="submit" class="key go" id="go">Sign up ⏎</button>
+    </div>
+    <div class="keys"></div>
+   </div>
+  </form>
+ </div>
+</section>
+
+<!-- 2. upload -->
+<section class="scene" id="upload">
+ <div class="upl">
+  <h1>Feed me a PDF</h1>
+  <div class="tw" id="utw">
+   <div class="feed"><div class="count" id="count"></div><div class="paper" id="paper"><b id="fname">Your document goes here</b></div></div>
+   <div class="body">
+    <div class="row">
+     <button type="button" class="key go" id="pick">Choose a PDF</button>
+     <button type="button" class="key" id="out1">Log out</button>
+    </div>
+    <div class="keys"></div>
+   </div>
+  </div>
+  <div class="msg" id="umsg" aria-live="polite"></div>
+  <input type="file" id="file" accept="application/pdf,.pdf" hidden>
+ </div>
+</section>
+
+<!-- 3. chat -->
+<section class="scene" id="chat">
+ <header class="top"><span class="brand">Doc Intelligence</span><span class="doc" id="docname"></span><button class="ghost" id="newdoc">New document</button><button class="ghost" id="out2">Log out</button></header>
+ <div class="wrap"><aside class="side">
+  <div class="sign"><p>Welcome to Doc Intelligence API</p><small>Upload a PDF. Ask it anything.</small></div>
+   <svg class="bot" viewBox="0 0 300 220" role="img" aria-label="The cowboy robot blows smoke from his gun"><use href="#bot" width="300" height="220"/>
+    <g class="smoke"><circle cx="234" cy="64" r="7"/><circle cx="240" cy="60" r="9" style="animation-delay:.25s"/><circle cx="246" cy="56" r="11" style="animation-delay:.5s"/><circle cx="238" cy="54" r="10" style="animation-delay:.75s"/><circle cx="250" cy="50" r="13" style="animation-delay:1s"/></g>
+   </svg></aside>
+  <main id="log"><div class="hero" id="hero"><div class="banner">Ask anything you want related to the document</div></div></main>
+ </div>
+ <form id="ask"><div class="box"><textarea id="q" rows="1" placeholder="Ask about your document…" aria-label="Your question"></textarea><button class="send" id="sendbtn" aria-label="Send">↑</button></div></form>
+</section>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],sleep=ms=>new Promise(r=>setTimeout(r,ms));
+/* ---- Adjust these if your API differs ---- */
+const CFG={
+ signup:'/auth/signup',login:'/auth/login',me:'/auth/me',upload:'/documents/upload',
+ status:id=>'/documents/'+id,
+ ask:(q,id)=>'/documents/ask?'+new URLSearchParams({question:q,document_id:id}),
+ done:['completed','complete','ready','done','processed','success'],failed:['failed','error']
+};
+let token=null,mode='up',docId=null,busy=false;
+try{token=sessionStorage.getItem('t')}catch(e){}
+/* ---- typewriter sounds (made in the browser, no audio files) ---- */
+let ac=null,muted=false,lastTick=0;
+function actx(){if(muted)return null;if(!ac){const C=window.AudioContext||window.webkitAudioContext;if(C)ac=new C()}if(ac&&ac.state==='suspended')ac.resume();return ac}
+function click(v=1){const a=actx();if(!a)return;const t=a.currentTime,n=Math.floor(a.sampleRate*.05),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);
+ for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);
+ const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain(),o=a.createOscillator(),og=a.createGain();
+ s.buffer=b;f.type='bandpass';f.frequency.value=1600+Math.random()*1000;g.gain.value=.5*v;s.connect(f);f.connect(g);g.connect(a.destination);s.start(t);
+ o.frequency.setValueAtTime(170,t);o.frequency.exponentialRampToValueAtTime(60,t+.06);og.gain.setValueAtTime(.3*v,t);og.gain.exponentialRampToValueAtTime(.001,t+.07);o.connect(og);og.connect(a.destination);o.start(t);o.stop(t+.08)}
+function ding(){const a=actx();if(!a)return;const t=a.currentTime;[2093,3136].forEach((fr,i)=>{const o=a.createOscillator(),g=a.createGain();o.frequency.value=fr;g.gain.setValueAtTime(.14/(i+1),t);g.gain.exponentialRampToValueAtTime(.001,t+1);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+1)})}
+function zip(){const a=actx();if(!a)return;const t=a.currentTime,n=Math.floor(a.sampleRate*.35),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*.5*(1-i/n);const s=a.createBufferSource(),f=a.createBiquadFilter();s.buffer=b;f.type='lowpass';f.frequency.setValueAtTime(3000,t);f.frequency.exponentialRampToValueAtTime(300,t+.35);s.connect(f);f.connect(a.destination);s.start(t)}
+document.addEventListener('keydown',e=>{if(!/^(INPUT|TEXTAREA)$/.test(e.target.tagName)||e.ctrlKey||e.metaKey)return;if(e.key.length===1||e.key==='Backspace'||e.key==='Enter')click()});
+$('#mute').onclick=e=>{muted=!muted;e.target.textContent=muted?'🔇':'🔊'};
+const hdr=()=>token?{Authorization:'Bearer '+token}:{};
+const errText=async r=>{try{const d=(await r.json()).detail;return typeof d==='string'?d:Array.isArray(d)?d.map(x=>x.msg).join(', '):'Something went wrong.'}catch(e){return'Something went wrong ('+r.status+').'}};
+
+async function typeMsg(el,t,cls){const n=el._n=(el._n||0)+1;el.className='msg '+(cls||'');el.textContent='';for(const c of t){if(el._n!==n)return;el.textContent+=c;if(c!==' ')click(.3);await sleep(26)}}
+function show(name){$$('.scene').forEach(s=>s.classList.toggle('on',s.id===name));scrollTo(0,0)}
+async function go(name){const c=$('#cur');c.classList.add('shut');await sleep(900);show(name);await sleep(250);c.classList.remove('shut');if(name==='chat'){const h=$('#chat');h.classList.remove('play');void h.offsetWidth;h.classList.add('play');$('#q').focus()}}
+
+/* ---- sign up / log in ---- */
+function setMode(m){mode=m;$$('.mode').forEach(b=>b.classList.toggle('sel',b.dataset.m===m));$('#go').textContent=m==='up'?'Sign up ⏎':'Log in ⏎';$('#heading').textContent=m==='up'?'Dear new friend,':'Welcome back,'}
+$$('.mode').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+$('#form').onsubmit=async e=>{
+ e.preventDefault();if(busy)return;
+ const email=$('#em').value.trim(),password=$('#pw').value,m=$('#msg');
+ if(!email||!password)return typeMsg(m,'Please type your email and password first.','bad');
+ busy=true;zip();
+ try{
+  if(mode==='up'){
+   const r=await fetch(CFG.signup,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+   if(!r.ok)throw new Error(await errText(r));
+   setMode('in');ding();await typeMsg(m,'You have successfully signed up! Now press Log in.','ok');
+  }else{
+   let r=await fetch(CFG.login,{method:'POST',body:new URLSearchParams({username:email,password})});
+   if(r.status===422)r=await fetch(CFG.login,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+   if(!r.ok)throw new Error(await errText(r));
+   token=(await r.json()).access_token;try{sessionStorage.setItem('t',token)}catch(e){}
+   ding();await typeMsg(m,'You have successfully logged in!','ok');await sleep(500);await go('upload');
+  }
+ }catch(x){await typeMsg(m,x.message==='Failed to fetch'?'Cannot reach the server. Try again.':x.message,'bad')}
+ busy=false;
+};
+
+/* ---- upload: the page rolls into the typewriter ---- */
+const countPages=async f=>{try{return((await f.text()).match(/\/Type\s*\/Page[^s]/g)||[]).length}catch(e){return 0}};
+function feed(p,pages){
+ if(p>0&&Date.now()-lastTick>90){lastTick=Date.now();click(.25)}
+ $('#paper').style.transform='translateY('+Math.min(p,1)*100+'%)';
+ const k=Math.min(p/.9,1);
+ $('#count').textContent=pages?'page '+Math.max(1,Math.round(k*pages))+' of '+pages:Math.round(k*100)+'%';
+}
+async function upload(f){
+ if(!f||busy)return;
+ const m=$('#umsg');
+ if(!/\.pdf$/i.test(f.name))return typeMsg(m,'Please choose a PDF file.','bad');
+ busy=true;$('#fname').textContent=f.name;feed(0,0);
+ const pages=await countPages(f);feed(0,pages);
+ try{
+  typeMsg(m,'Rolling your pages in…');
+  const j=await new Promise((res,rej)=>{
+   const x=new XMLHttpRequest();x.open('POST',CFG.upload);
+   if(token)x.setRequestHeader('Authorization','Bearer '+token);
+   x.upload.onprogress=e=>e.lengthComputable&&feed(e.loaded/e.total*.9,pages);
+   x.onload=()=>x.status<300?res(JSON.parse(x.responseText||'{}')):rej(new Error('Upload failed ('+x.status+').'));
+   x.onerror=()=>rej(new Error('Cannot reach the server. Try again.'));
+   const fd=new FormData();fd.append('file',f);x.send(fd);
+  });
+  docId=j.id??j.document_id;if(docId==null)throw new Error('The server did not return a document id.');
+  feed(.9,pages);typeMsg(m,'Reading every page…');
+  let ready=false;
+  for(let i=0;i<90&&!ready;i++){
+   const r=await fetch(CFG.status(docId),{headers:hdr()});
+   if(r.ok){const s=String((await r.json()).status||'').toLowerCase();if(CFG.done.includes(s))ready=true;else if(CFG.failed.includes(s))throw new Error('The document could not be read.')}
+   if(!ready)await sleep(2000);
+  }
+  if(!ready)throw new Error('This is taking too long. Try again in a minute.');
+  feed(1,pages);ding();await typeMsg(m,'All pages are in!','ok');await sleep(500);
+  $('#docname').textContent=f.name;$$('#log .u,#log .a').forEach(n=>n.remove());$('#hero').classList.remove('gone');
+  await go('chat');
+ }catch(x){await typeMsg(m,x.message,'bad');feed(0,0)}
+ busy=false;$('#file').value='';
+}
+$('#pick').onclick=()=>$('#file').click();
+$('#file').onchange=e=>upload(e.target.files[0]);
+const utw=$('#utw');
+utw.ondragover=e=>{e.preventDefault();utw.classList.add('drop')};
+utw.ondragleave=()=>utw.classList.remove('drop');
+utw.ondrop=e=>{e.preventDefault();utw.classList.remove('drop');upload(e.dataTransfer.files[0])};
+
+/* ---- chat ---- */
+const q=$('#q');
+q.oninput=()=>{q.style.height='auto';q.style.height=q.scrollHeight+'px'};
+q.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('#ask').requestSubmit()}};
+const add=(cls,txt)=>{const d=document.createElement('div');d.className=cls;d.textContent=txt;$('#log').append(d);return d};
+$('#ask').onsubmit=async e=>{
+ e.preventDefault();const text=q.value.trim();if(!text||busy)return;
+ busy=true;zip();$('#sendbtn').disabled=true;q.value='';q.style.height='auto';
+ $('#hero').classList.add('gone');add('u',text);const a=add('a','…');
+ try{
+  const r=await fetch(CFG.ask(text,docId),{headers:hdr()});
+  if(!r.ok)throw new Error(await errText(r));
+  const rd=r.body.getReader(),dec=new TextDecoder();let out='';
+  for(;;){const{done,value}=await rd.read();if(done)break;out+=dec.decode(value,{stream:true}).replace(/^data: ?/gm,'');a.textContent=out;scrollTo(0,document.body.scrollHeight)}
+  if(!out.trim())a.textContent="I couldn't find that in the document.";
+ }catch(x){a.classList.add('err');a.textContent=x.message==='Failed to fetch'?'Cannot reach the server. Try again.':x.message}
+ busy=false;$('#sendbtn').disabled=false;q.focus();
+};
+
+/* ---- misc ---- */
+const logout=async()=>{token=null;try{sessionStorage.removeItem('t')}catch(e){}$('#pw').value='';setMode('in');await go('auth')};
+$('#out1').onclick=logout;$('#out2').onclick=logout;
+$('#newdoc').onclick=()=>{$('#fname').textContent='Your document goes here';feed(0,0);$('#count').textContent='';$('#umsg').textContent='';go('upload')};
+(async()=>{if(!token)return;try{const r=await fetch(CFG.me,{headers:hdr()});if(r.ok)show('upload');else token=null}catch(e){}})();
+</script>
+</body>
+</html>

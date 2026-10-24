@@ -1,3 +1,6 @@
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from sqlalchemy import text
 import asyncio
 import logging
@@ -19,6 +22,16 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(documents.router)
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+
+
+@app.get("/", include_in_schema=False)
+async def index():
+    return FileResponse(BASE_DIR / "static" / "index.html")
 
 
 @app.on_event("startup")
