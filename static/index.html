@@ -13,7 +13,7 @@ html,body{margin:0;min-height:100%}
 body{background:radial-gradient(circle at 15% 0,#f6fffb,transparent 55%),var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif;overflow-x:hidden}
 button{font:inherit;cursor:pointer}
 :focus-visible{outline:3px solid var(--deep);outline-offset:2px}
-.scene{display:none;min-height:100vh}.scene.on{display:block}
+.scene{display:none;min-height:100vh;position:relative;z-index:1}.scene.on{display:block}
 
 /* sign + robot */
 .stage{display:grid;place-items:center;min-height:100vh;padding:28px 20px}
@@ -54,6 +54,24 @@ button{font:inherit;cursor:pointer}
 .upl .msg{margin-top:34px}
 .drop{outline:3px dashed var(--deep);outline-offset:8px}
 
+/* cowboy-town backdrop */
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.town{position:absolute;left:0;right:0;bottom:0;width:100%;height:30vh;min-height:150px}
+.sun{position:absolute;top:7vh;right:8vw;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle,#fff6d6,#ffe7a3 58%,#ffe7a300 72%);animation:glow 6s ease-in-out infinite alternate}
+@keyframes glow{to{transform:scale(1.12);opacity:.8}}
+.wind{position:absolute;left:0;width:160px;height:2px;border-radius:2px;background:linear-gradient(90deg,#8fcdb500,#8fcdb5b0,#8fcdb500);animation:gust linear infinite}
+@keyframes gust{from{transform:translateX(-20vw)}to{transform:translateX(110vw)}}
+.dust{position:absolute;left:0;border-radius:50%;background:#c9a96e;animation:drift linear infinite}
+@keyframes drift{0%{transform:translate(-5vw,0)}50%{transform:translate(50vw,-18px)}100%{transform:translate(105vw,10px)}}
+.weed{position:absolute;bottom:8vh;left:0;animation:roll 30s linear infinite;animation-delay:-8s}
+.hop{animation:hop .55s ease-in-out infinite alternate}.hop svg{display:block;animation:spin 30s linear infinite;animation-delay:-8s}
+@keyframes roll{from{transform:translateX(-90px)}to{transform:translateX(calc(100vw + 90px))}}
+@keyframes hop{to{transform:translateY(-16px)}}
+@keyframes spin{to{transform:rotate(2400deg)}}
+.side .sign{animation:sway 5s ease-in-out infinite alternate;transform-origin:50% 100%}
+@keyframes sway{from{transform:rotate(-2deg)}to{transform:rotate(-.4deg)}}
+body[data-scene=chat] .mute{display:none}
+
 /* curtains */
 .curtains{position:fixed;inset:0;z-index:50;pointer-events:none}
 .curtains i{position:absolute;top:0;bottom:0;width:51%;background:repeating-linear-gradient(90deg,#2e8f73 0 24px,#257a62 24px 48px);transition:transform .8s cubic-bezier(.7,0,.3,1)}
@@ -79,7 +97,7 @@ button{font:inherit;cursor:pointer}
 .banner{max-width:370px;padding:30px 42px;background:var(--paper);font:400 36px/1.1 var(--script);text-align:center;clip-path:polygon(0 0,100% 0,95% 50%,100% 100%,0 100%,5% 50%);opacity:0;transform-origin:left center}
 .play .banner{animation:ribbon 1s 1.5s cubic-bezier(.2,.9,.3,1.2) forwards}
 @keyframes ribbon{from{opacity:0;transform:translateX(-80px) scale(.2,.5)}to{opacity:1;transform:none}}
-#ask{position:fixed;left:310px;right:0;bottom:0;padding:14px 20px 20px;background:linear-gradient(transparent,var(--bg) 40%)}
+#ask{position:fixed;left:310px;right:0;bottom:0;padding:14px 20px 20px;background:linear-gradient(transparent,#e3f6eecc 45%)}
 .box{max-width:780px;margin:0 auto;display:flex;align-items:flex-end;gap:8px;background:#fff;border:1px solid #2e8f7340;border-radius:26px;padding:8px 8px 8px 20px;box-shadow:0 6px 24px #1d3a3122}
 .box textarea{flex:1;border:0;outline:0;resize:none;font:17px/1.6 Inter,system-ui,sans-serif;color:var(--ink);max-height:180px;padding:6px 0;background:transparent}
 .send{width:40px;height:40px;border:0;border-radius:50%;background:var(--deep);color:#fff;font-size:20px}
@@ -87,7 +105,7 @@ button{font:inherit;cursor:pointer}
 
 .mute{position:fixed;left:12px;bottom:12px;z-index:60;width:40px;height:40px;border-radius:50%;border:3px solid #5e3a1c;background:#f6ecd2;font-size:18px;box-shadow:0 3px 0 #5e3a1c}
 @media(max-width:900px){.wrap{grid-template-columns:1fr}.side{position:static;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:8px 20px;padding:10px}.side .bot{max-width:150px}#ask{left:0}.banner{font-size:30px}.mute{bottom:96px;left:8px;width:34px;height:34px}}
-@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.dust,.wind,.weed{display:none}}
 </style>
 </head>
 <body>
@@ -112,6 +130,18 @@ button{font:inherit;cursor:pointer}
  <path d="M200 60h30v8h-19l-4 14h-9z" fill="#3c3c3c"/>
 </symbol></defs></svg>
 
+<div id="bg" aria-hidden="true">
+ <div class="sun"></div><i class="wind" style="top:14%;animation-duration:8s;animation-delay:-1s"></i><i class="wind" style="top:27%;animation-duration:11s;animation-delay:-5s"></i><i class="wind" style="top:41%;animation-duration:9s;animation-delay:-3s"></i><i class="wind" style="top:58%;animation-duration:13s;animation-delay:-8s"></i><i class="wind" style="top:72%;animation-duration:10s;animation-delay:-2s"></i>
+ <div class="weed"><div class="hop"><svg viewBox="0 0 60 60" width="56" height="56"><g fill="none" stroke="#a98456" stroke-width="2" stroke-linecap="round"><circle cx="30" cy="30" r="24"/><path d="M8 24q22-14 44 2M10 40q20 14 42-4M20 8q-8 24 6 44M40 8q10 22-4 44M12 30q18-8 36 0"/></g></svg></div></div>
+ <svg class="town" viewBox="0 0 1200 200" preserveAspectRatio="xMidYMax slice">
+  <defs><g id="cac"><rect x="12" y="0" width="14" height="70" rx="7"/><rect x="0" y="22" width="9" height="26" rx="4.5"/><rect x="0" y="40" width="24" height="8" rx="4"/><rect x="29" y="14" width="9" height="24" rx="4.5"/><rect x="16" y="32" width="22" height="8" rx="4"/></g></defs>
+  <path fill="#d3eee2" d="M0 200V128l70-34h80l30 26 60-6 50-48h100l36 44 70-12 40 30h130l46-40h90l34 34 70-6 56-40h110l36 44 80-12 46 30V200z"/>
+  <g fill="#b5e0cd"><path d="M420 200v-76h22v-14h70v14h22v76z"/><path d="M536 200v-46h58v-12h26v58z"/><path d="M640 200v-70h18v-16h54v16h18v70z"/><path d="M760 200v-40h66v40z"/></g>
+  <text x="438" y="160" font-size="13" fill="#7fc3a8" font-family="Special Elite,monospace">SALOON</text>
+  <g fill="#9fd4bd"><use href="#cac" x="150" y="126"/><use href="#cac" x="1010" y="134"/><use href="#cac" x="300" y="150"/></g>
+  <rect y="188" width="1200" height="12" fill="#a9dcc5"/>
+ </svg>
+</div>
 <div class="curtains" id="cur"><i></i><i></i></div>
 <button class="mute" id="mute" aria-label="Toggle typewriter sound">🔊</button>
 
@@ -182,7 +212,7 @@ let token=null,mode='up',docId=null,busy=false;
 try{token=sessionStorage.getItem('t')}catch(e){}
 /* ---- typewriter sounds (made in the browser, no audio files) ---- */
 let ac=null,muted=false,lastTick=0;
-function actx(){if(muted)return null;if(!ac){const C=window.AudioContext||window.webkitAudioContext;if(C)ac=new C()}if(ac&&ac.state==='suspended')ac.resume();return ac}
+function actx(){if(muted||document.body.dataset.scene==='chat')return null;if(!ac){const C=window.AudioContext||window.webkitAudioContext;if(C)ac=new C()}if(ac&&ac.state==='suspended')ac.resume();return ac}
 function click(v=1){const a=actx();if(!a)return;const t=a.currentTime,n=Math.floor(a.sampleRate*.05),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);
  for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);
  const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain(),o=a.createOscillator(),og=a.createGain();
@@ -192,11 +222,13 @@ function ding(){const a=actx();if(!a)return;const t=a.currentTime;[2093,3136].fo
 function zip(){const a=actx();if(!a)return;const t=a.currentTime,n=Math.floor(a.sampleRate*.35),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*.5*(1-i/n);const s=a.createBufferSource(),f=a.createBiquadFilter();s.buffer=b;f.type='lowpass';f.frequency.setValueAtTime(3000,t);f.frequency.exponentialRampToValueAtTime(300,t+.35);s.connect(f);f.connect(a.destination);s.start(t)}
 document.addEventListener('keydown',e=>{if(!/^(INPUT|TEXTAREA)$/.test(e.target.tagName)||e.ctrlKey||e.metaKey)return;if(e.key.length===1||e.key==='Backspace'||e.key==='Enter')click()});
 $('#mute').onclick=e=>{muted=!muted;e.target.textContent=muted?'🔇':'🔊'};
+document.body.dataset.scene='auth';
+(()=>{const b=$('#bg');for(let i=0;i<28;i++){const d=document.createElement('i'),s=2+Math.random()*3;d.className='dust';d.style.cssText=`top:${Math.random()*92}%;width:${s}px;height:${s}px;opacity:${.25+Math.random()*.35};animation-duration:${9+Math.random()*14}s;animation-delay:-${Math.random()*20}s`;b.append(d)}})();
 const hdr=()=>token?{Authorization:'Bearer '+token}:{};
-const errText=async r=>{try{const d=(await r.json()).detail;return typeof d==='string'?d:Array.isArray(d)?d.map(x=>x.msg).join(', '):'Something went wrong.'}catch(e){return'Something went wrong ('+r.status+').'}};
+const errText=async r=>{try{const d=(await r.json()).detail;return typeof d==='string'?d:Array.isArray(d)?d.map(x=>(x.loc||[]).slice(1).join('.')+': '+x.msg).join(', '):'Something went wrong.'}catch(e){return'Something went wrong ('+r.status+').'}};
 
 async function typeMsg(el,t,cls){const n=el._n=(el._n||0)+1;el.className='msg '+(cls||'');el.textContent='';for(const c of t){if(el._n!==n)return;el.textContent+=c;if(c!==' ')click(.3);await sleep(26)}}
-function show(name){$$('.scene').forEach(s=>s.classList.toggle('on',s.id===name));scrollTo(0,0)}
+function show(name){document.body.dataset.scene=name;$$('.scene').forEach(s=>s.classList.toggle('on',s.id===name));scrollTo(0,0)}
 async function go(name){const c=$('#cur');c.classList.add('shut');await sleep(900);show(name);await sleep(250);c.classList.remove('shut');if(name==='chat'){const h=$('#chat');h.classList.remove('play');void h.offsetWidth;h.classList.add('play');$('#q').focus()}}
 
 /* ---- sign up / log in ---- */
@@ -270,16 +302,34 @@ utw.ondragleave=()=>utw.classList.remove('drop');
 utw.ondrop=e=>{e.preventDefault();utw.classList.remove('drop');upload(e.dataTransfer.files[0])};
 
 /* ---- chat ---- */
+let spec=null;
+async function askFetch(text){
+ try{
+  if(!spec)spec=await(await fetch('/openapi.json')).json();
+  const res=s=>s&&s.$ref?spec.components.schemas[s.$ref.split('/').pop()]:s;
+  const path=Object.keys(spec.paths).find(p=>/\/ask$/.test(p));
+  if(!path)throw 0;
+  const item=spec.paths[path],method=item.get?'get':item.post?'post':Object.keys(item)[0],op=item[method];
+  const isQ=n=>/^(q|question|query|prompt|message|text)$/i.test(n),isId=n=>/(doc.*id|^id$|document)/i.test(n);
+  const fill=(n,t)=>isQ(n)?text:isId(n)?(t==='integer'?Number(docId):docId):undefined;
+  let url=path;const qs=new URLSearchParams();
+  for(const p of op.parameters||[]){const v=fill(p.name,res(p.schema)?.type);if(v===undefined)continue;if(p.in==='path')url=url.replace('{'+p.name+'}',encodeURIComponent(v));else if(p.in==='query')qs.set(p.name,v)}
+  const opt={method:method.toUpperCase(),headers:hdr()};
+  const sch=res(op.requestBody?.content?.['application/json']?.schema);
+  if(sch&&sch.properties){const o={};for(const n in sch.properties){const v=fill(n,sch.properties[n].type);if(v!==undefined)o[n]=v}opt.headers={...opt.headers,'Content-Type':'application/json'};opt.body=JSON.stringify(o)}
+  return await fetch(url+([...qs].length?'?'+qs:''),opt);
+ }catch(e){return fetch(CFG.ask(text,docId),{headers:hdr()})}
+}
 const q=$('#q');
 q.oninput=()=>{q.style.height='auto';q.style.height=q.scrollHeight+'px'};
 q.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('#ask').requestSubmit()}};
 const add=(cls,txt)=>{const d=document.createElement('div');d.className=cls;d.textContent=txt;$('#log').append(d);return d};
 $('#ask').onsubmit=async e=>{
  e.preventDefault();const text=q.value.trim();if(!text||busy)return;
- busy=true;zip();$('#sendbtn').disabled=true;q.value='';q.style.height='auto';
+ busy=true;$('#sendbtn').disabled=true;q.value='';q.style.height='auto';
  $('#hero').classList.add('gone');add('u',text);const a=add('a','…');
  try{
-  const r=await fetch(CFG.ask(text,docId),{headers:hdr()});
+  const r=await askFetch(text);
   if(!r.ok)throw new Error(await errText(r));
   const rd=r.body.getReader(),dec=new TextDecoder();let out='';
   for(;;){const{done,value}=await rd.read();if(done)break;out+=dec.decode(value,{stream:true}).replace(/^data: ?/gm,'');a.textContent=out;scrollTo(0,document.body.scrollHeight)}
